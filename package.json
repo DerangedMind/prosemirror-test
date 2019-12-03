@@ -16,6 +16,7 @@
     "@types/prosemirror-transform": "latest",
     "@types/prosemirror-view": "latest",
     "@webcomponents/webcomponentsjs": "^2.4.0",
+    "crel": "^4.2.0",
     "lit-element": "^2.2.1",
     "prosemirror-example-setup": "latest",
     "prosemirror-history": "latest",

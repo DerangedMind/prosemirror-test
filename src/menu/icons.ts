@@ -1,7 +1,7 @@
-const SVG = "http://www.w3.org/2000/svg";
-const XLINK = "http://www.w3.org/1999/xlink";
+const SVG = 'http://www.w3.org/2000/svg';
+const XLINK = 'http://www.w3.org/1999/xlink';
 
-const prefix = "ProseMirror-icon";
+const prefix = 'ProseMirror-icon';
 
 function hashPath(path) {
   let hash = 0;
@@ -10,42 +10,48 @@ function hashPath(path) {
   return hash;
 }
 
-export function getIcon(icon) {
-  let node = document.createElement("div");
+export function getIcon(icon: any) {
+  let node = document.createElement('div');
   node.className = prefix;
   if (icon.path) {
-    let name = "pm-icon-" + hashPath(icon.path).toString(16);
+    let name = 'pm-icon-' + hashPath(icon.path).toString(16);
     if (!document.getElementById(name)) buildSVG(name, icon);
-    let svg = node.appendChild(document.createElementNS(SVG, "svg"));
-    svg.style.width = icon.width / icon.height + "em";
-    let use = svg.appendChild(document.createElementNS(SVG, "use"));
+    let svg = node.appendChild(document.createElementNS(SVG, 'svg'));
+    svg.style.width = icon.width / icon.height + 'em';
+    let use = svg.appendChild(document.createElementNS(SVG, 'use'));
     use.setAttributeNS(
       XLINK,
-      "href",
-      /([^#]*)/.exec(document.location as any)[1] + "#" + name
+      'href',
+      /([^#]*)/.exec(document.location as any)[1] + '#' + name
     );
   } else if (icon.dom) {
     node.appendChild(icon.dom.cloneNode(true));
   } else {
-    node.appendChild(document.createElement("span")).textContent =
-      icon.text || "";
+    node.appendChild(document.createElement('span')).textContent =
+      icon.text || '';
     if (icon.css) (node.firstChild as any).style.cssText = icon.css;
   }
   return node;
 }
 
-function buildSVG(name, data) {
-  let collection = document.getElementById(prefix + "-collection");
+function buildSVG(name: string, data) {
+  let collection: Element | SVGSVGElement = document.getElementById(
+    prefix + '-collection'
+  );
+
   if (!collection) {
-    collection = document.createElementNS(SVG, "svg");
-    collection.id = prefix + "-collection";
-    collection.style.display = "none";
+    collection = document.createElementNS(SVG, 'svg');
+    collection.id = prefix + '-collection';
+    // @ts-ignore
+    collection.style.display = 'none';
     document.body.insertBefore(collection, document.body.firstChild);
   }
-  let sym = document.createElementNS(SVG, "symbol");
-  sym.id = name;
-  sym.setAttribute("viewBox", "0 0 " + data.width + " " + data.height);
-  let path = sym.appendChild(document.createElementNS(SVG, "path"));
-  path.setAttribute("d", data.path);
-  collection.appendChild(sym);
+
+  let symbol = document.createElementNS(SVG, 'symbol');
+  symbol.id = name;
+  symbol.setAttribute('viewBox', '0 0 ' + data.width + ' ' + data.height);
+
+  let path = symbol.appendChild(document.createElementNS(SVG, 'path'));
+  path.setAttribute('d', data.path);
+  collection.appendChild(symbol);
 }

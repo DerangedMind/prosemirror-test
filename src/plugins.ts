@@ -1,14 +1,16 @@
-import { keymap } from "prosemirror-keymap";
-import { history } from "prosemirror-history";
-import { baseKeymap } from "prosemirror-commands";
-import { Plugin } from "prosemirror-state";
-import { dropCursor } from "prosemirror-dropcursor";
-import { gapCursor } from "prosemirror-gapcursor";
-import { menuBar } from "prosemirror-menu";
+import { keymap } from 'prosemirror-keymap';
+import { history } from 'prosemirror-history';
+import { baseKeymap } from 'prosemirror-commands';
+import { Plugin } from 'prosemirror-state';
+import { dropCursor } from 'prosemirror-dropcursor';
+import { gapCursor } from 'prosemirror-gapcursor';
+import { menuBar } from './menu/MenuBar';
 
-import { buildMenuItems } from "./config/menu";
-import { buildKeymap } from "./config/keymap";
-import { buildInputRules } from "./config/inputrules";
+import { buildMenuItems } from './menu';
+import { buildKeymap } from './config/keymap';
+import { buildInputRules } from './config/inputrules';
+import { Schema } from 'prosemirror-model';
+import { MenuItem } from './menu/MenuItem';
 
 export { buildMenuItems, buildKeymap, buildInputRules };
 
@@ -48,19 +50,29 @@ export { buildMenuItems, buildKeymap, buildInputRules };
 //
 //     menuContent:: [[MenuItem]]
 //     Can be used to override the menu content.
-export function exampleSetup(options) {
+
+interface SchemaOptions {
+  schema: Schema;
+  mapKeys?: any;
+  menuBar?: boolean;
+  history?: boolean;
+  floatingMenu?: boolean;
+  menuContent?: MenuItem[];
+}
+
+export function exampleSetup(options: SchemaOptions) {
   let plugins = [
     buildInputRules(options.schema),
     keymap(buildKeymap(options.schema, options.mapKeys)),
     keymap(baseKeymap),
     dropCursor(),
-    gapCursor()
+    gapCursor(),
   ];
   if (options.menuBar !== false)
     plugins.push(
       menuBar({
         floating: options.floatingMenu !== false,
-        content: options.menuContent || buildMenuItems(options.schema).fullMenu
+        content: options.menuContent || buildMenuItems(options.schema).fullMenu,
       })
     );
   if (options.history !== false) plugins.push(history());
@@ -68,8 +80,8 @@ export function exampleSetup(options) {
   return plugins.concat(
     new Plugin({
       props: {
-        attributes: { class: "ProseMirror-example-setup-style" }
-      }
+        attributes: { class: 'ProseMirror-example-setup-style' },
+      },
     })
   );
 }

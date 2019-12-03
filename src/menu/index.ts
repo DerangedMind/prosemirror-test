@@ -2,20 +2,19 @@
 import {
   wrapItem,
   blockTypeItem,
-  Dropdown,
-  DropdownSubmenu,
   joinUpItem,
   liftItem,
   selectParentNodeItem,
   undoItem,
   redoItem,
   icons,
-  MenuItem
-} from "./menu";
-import { NodeSelection } from "prosemirror-state";
-import { toggleMark } from "prosemirror-commands";
-import { wrapInList } from "prosemirror-schema-list";
-import { TextField, openPrompt } from "../prompt";
+} from './menu';
+import { MenuItem } from './MenuItem';
+import { Dropdown, DropdownSubmenu } from './Dropdown';
+import { NodeSelection } from 'prosemirror-state';
+import { toggleMark } from 'prosemirror-commands';
+import { wrapInList } from 'prosemirror-schema-list';
+import { TextField, openPrompt } from '../config/prompt';
 
 // Helpers to create specific types of items
 
@@ -30,8 +29,8 @@ function canInsert(state, nodeType) {
 
 function insertImageItem(nodeType): Partial<MenuItem> {
   return new MenuItem({
-    title: "Insert image",
-    label: "Image",
+    title: 'Insert image',
+    label: 'Image',
     enable(state) {
       return canInsert(state, nodeType);
     },
@@ -44,38 +43,38 @@ function insertImageItem(nodeType): Partial<MenuItem> {
       )
         attrs = state.selection.node.attrs;
       openPrompt({
-        title: "Insert image",
+        title: 'Insert image',
         fields: {
           src: new TextField({
-            label: "Location",
+            label: 'Location',
             required: true,
-            value: attrs && attrs.src
+            value: attrs && attrs.src,
           }),
-          title: new TextField({ label: "Title", value: attrs && attrs.title }),
+          title: new TextField({ label: 'Title', value: attrs && attrs.title }),
           alt: new TextField({
-            label: "Description",
-            value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")
-          })
+            label: 'Description',
+            value: attrs ? attrs.alt : state.doc.textBetween(from, to, ' '),
+          }),
         },
         callback(attrs) {
           view.dispatch(
             view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs))
           );
           view.focus();
-        }
+        },
       });
-    }
+    },
   } as any);
 }
 
 function cmdItem(cmd, options) {
   let passedOptions: any = {
     label: options.title,
-    run: cmd
+    run: cmd,
   };
   for (let prop in options) passedOptions[prop] = options[prop];
   if ((!options.enable || options.enable === true) && !options.select)
-    passedOptions[options.enable ? "enable" : "select"] = state => cmd(state);
+    passedOptions[options.enable ? 'enable' : 'select'] = (state) => cmd(state);
 
   return new MenuItem(passedOptions);
 }
@@ -91,7 +90,7 @@ function markItem(markType, options) {
     active(state) {
       return markActive(state, markType);
     },
-    enable: true
+    enable: true,
   };
   for (let prop in options) passedOptions[prop] = options[prop];
   return cmdItem(toggleMark(markType), passedOptions);
@@ -99,7 +98,7 @@ function markItem(markType, options) {
 
 function linkItem(markType) {
   return new MenuItem({
-    title: "Add or remove link",
+    title: 'Add or remove link',
     icon: icons.link,
     active(state) {
       return markActive(state, markType);
@@ -113,20 +112,20 @@ function linkItem(markType) {
         return true;
       }
       openPrompt({
-        title: "Create a link",
+        title: 'Create a link',
         fields: {
           href: new TextField({
-            label: "Link target",
-            required: true
+            label: 'Link target',
+            required: true,
           }),
-          title: new TextField({ label: "Title" })
+          title: new TextField({ label: 'Title' }),
         },
         callback(attrs) {
           toggleMark(markType, attrs)(view.state, view.dispatch);
           view.focus();
-        }
+        },
       });
-    }
+    },
   } as any);
 }
 
@@ -193,72 +192,72 @@ function wrapListItem(nodeType, options) {
 //   : An array of arrays of menu elements for use as the full menu
 //     for, for example the [menu bar](https://github.com/prosemirror/prosemirror-menu#user-content-menubar).
 export function buildMenuItems(schema) {
-  let r: any = {},
-    type;
+  let r: any = {};
+  let type: any;
   if ((type = schema.marks.strong))
     r.toggleStrong = markItem(type, {
-      title: "Toggle strong style",
-      icon: icons.strong
+      title: 'Toggle strong style',
+      icon: icons.strong,
     });
   if ((type = schema.marks.em))
-    r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: icons.em });
+    r.toggleEm = markItem(type, { title: 'Toggle emphasis', icon: icons.em });
   if ((type = schema.marks.code))
     r.toggleCode = markItem(type, {
-      title: "Toggle code font",
-      icon: icons.code
+      title: 'Toggle code font',
+      icon: icons.code,
     });
   if ((type = schema.marks.link)) r.toggleLink = linkItem(type);
 
   if ((type = schema.nodes.image)) r.insertImage = insertImageItem(type);
   if ((type = schema.nodes.bullet_list))
     r.wrapBulletList = wrapListItem(type, {
-      title: "Wrap in bullet list",
-      icon: icons.bulletList
+      title: 'Wrap in bullet list',
+      icon: icons.bulletList,
     });
   if ((type = schema.nodes.ordered_list))
     r.wrapOrderedList = wrapListItem(type, {
-      title: "Wrap in ordered list",
-      icon: icons.orderedList
+      title: 'Wrap in ordered list',
+      icon: icons.orderedList,
     });
   if ((type = schema.nodes.blockquote))
     r.wrapBlockQuote = wrapItem(type, {
-      title: "Wrap in block quote",
-      icon: icons.blockquote
+      title: 'Wrap in block quote',
+      icon: icons.blockquote,
     });
   if ((type = schema.nodes.paragraph))
     r.makeParagraph = blockTypeItem(type, {
-      title: "Change to paragraph",
-      label: "Plain"
+      title: 'Change to paragraph',
+      label: 'Plain',
     });
   if ((type = schema.nodes.code_block))
     r.makeCodeBlock = blockTypeItem(type, {
-      title: "Change to code block",
-      label: "Code"
+      title: 'Change to code block',
+      label: 'Code',
     });
   if ((type = schema.nodes.heading))
     for (let i = 1; i <= 10; i++)
-      r["makeHead" + i] = blockTypeItem(type, {
-        title: "Change to heading " + i,
-        label: "Level " + i,
-        attrs: { level: i }
+      r['makeHead' + i] = blockTypeItem(type, {
+        title: 'Change to heading ' + i,
+        label: 'Level ' + i,
+        attrs: { level: i },
       });
   if ((type = schema.nodes.horizontal_rule)) {
     let hr = type;
     r.insertHorizontalRule = new MenuItem({
-      title: "Insert horizontal rule",
-      label: "Horizontal rule",
+      title: 'Insert horizontal rule',
+      label: 'Horizontal rule',
       enable(state) {
         return canInsert(state, hr);
       },
       run(state, dispatch) {
         dispatch(state.tr.replaceSelectionWith(hr.create()));
-      }
+      },
     } as any);
   }
 
-  let cut = arr => arr.filter(x => x);
+  let cut = (arr) => arr.filter((x) => x);
   r.insertMenu = new Dropdown(cut([r.insertImage, r.insertHorizontalRule]), {
-    label: "Insert"
+    label: 'Insert',
   });
   r.typeMenu = new Dropdown(
     cut([
@@ -272,16 +271,16 @@ export function buildMenuItems(schema) {
             r.makeHead3,
             r.makeHead4,
             r.makeHead5,
-            r.makeHead6
+            r.makeHead6,
           ]),
-          { label: "Heading" }
-        )
+          { label: 'Heading' }
+        ),
     ]),
-    { label: "Type..." }
+    { label: 'Type...' }
   );
 
   r.inlineMenu = [
-    cut([r.toggleStrong, r.toggleEm, r.toggleCode, r.toggleLink])
+    cut([r.toggleStrong, r.toggleEm, r.toggleCode, r.toggleLink]),
   ];
   r.blockMenu = [
     cut([
@@ -290,8 +289,8 @@ export function buildMenuItems(schema) {
       r.wrapBlockQuote,
       joinUpItem,
       liftItem,
-      selectParentNodeItem
-    ])
+      selectParentNodeItem,
+    ]),
   ];
   r.fullMenu = r.inlineMenu.concat(
     [[r.insertMenu, r.typeMenu]],
